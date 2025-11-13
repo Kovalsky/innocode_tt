@@ -2,15 +2,17 @@
 
 
 * Ruby version
+    * 3.4.6
 
-*  Dependencies
-    * PostgreSQL on 5432 port
-    * Redis on 6379 port
+For manual setup:
+  PostgreSQL on 5432 port
+  Redis on 6379 port
 
-* Database initialization
-    * rake db:create
-    * rake db:migrate
+mv .env.example .env
+rake db:create db:migrate
 
+Or build with docker:
+    docker build -t innocode_tt .
 
 To run service spec:
 rspec spec/services/google_distance_service_spec.rb
@@ -26,6 +28,21 @@ rails c
       timeout: ENV.fetch("REDIS_POOL_TIMEOUT", 5).to_i
     )
 
-    service = GoogleDistanceService.new(route: 'driving', origin: 'New York, NY', destination: 'Los Angeles, CA')
+    route = Route.create(
+      title: "Kyiv-Lviv Route",
+      origin: "50.450240400493975:30.524468009758962",
+      destination: "49.84422673062658:24.026473914219874",
+      last_updated_at: Time.current
+    )
+
+    service = GoogleDistanceService.new(route:)
     service.call
 
+    REDIS_STORE.get("GoogleDistanceService:#{route.id}")
+    route.reload.last_updated_at
+
+
+For dockerized rails console:
+    docker run --rm -it -e RAILS_ENV=development innocode_tt bash -lc "./bin/rails console"
+Or for dockerized rspec:
+    docker run --rm -it -e RAILS_ENV=test innocode_tt bash -lc "bundle exec rspec spec/services/google_distance_service_spec.rb"

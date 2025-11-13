@@ -38,8 +38,10 @@ RSpec.describe GoogleDistanceService do
         end
 
         it "saves result to redis" do
+          service.call
+
           cache_obj = {
-            updated_at: Time.current.to_i,
+            updated_at: route.last_updated_at.to_i,
             duration: 100,
             static_duration: 50,
             distance: 1000,
@@ -47,8 +49,7 @@ RSpec.describe GoogleDistanceService do
             traffic_state: 'normal'
           }.to_json
 
-          expect(redis_store).to receive(:set).with("GoogleDistanceService:#{route.id}", cache_obj, expires_in: 5.minutes)
-          service.call
+          expect(redis_store).to have_received(:set).with("GoogleDistanceService:#{route.id}", cache_obj, expires_in: 5.minutes)
         end
       end
 
