@@ -9,6 +9,9 @@ For manual setup:
   Redis on 6379 port
 
 mv .env.example .env
+add your GOOGLE_MAPS_API_KEY to .env file
+
+bundle install
 rake db:create db:migrate
 
 Or build with docker:
