@@ -6,6 +6,10 @@ if [ -z "${LD_PRELOAD+x}" ]; then
     export LD_PRELOAD
 fi
 
+# Start a local Redis server in the background for app caching.
+# Use /tmp for pid and disable persistence to avoid permission issues in the container.
+redis-server --daemonize yes --save "" --appendonly no --dir /tmp --pidfile /tmp/redis.pid || true
+
 # If running the rails server then create or migrate existing database
 if [ "${@: -2:1}" == "./bin/rails" ] && [ "${@: -1:1}" == "server" ]; then
   ./bin/rails db:prepare

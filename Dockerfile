@@ -51,6 +51,11 @@ RUN bundle exec bootsnap precompile app/ lib/
 # Final stage for app image
 FROM base
 
+# Install Redis server for the app's caching needs
+RUN apt-get update -qq && \
+    apt-get install --no-install-recommends -y redis-server && \
+    rm -rf /var/lib/apt/lists /var/cache/apt/archives
+
 # Copy built artifacts: gems, application
 COPY --from=build "${BUNDLE_PATH}" "${BUNDLE_PATH}"
 COPY --from=build /rails /rails

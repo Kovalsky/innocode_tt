@@ -60,8 +60,9 @@ class GoogleDistanceService < BaseService
     route = responce['routes'].first
 
     cache_key = "GoogleDistanceService:#{@route.id}"
+    cache_time = Time.current
     cache_json = {
-      updated_at: Time.current.to_i,
+      updated_at: cache_time.to_i,
       duration: route['duration'].chop.to_i, # in seconds
       static_duration: route['staticDuration'].chop.to_i, # in seconds
       distance: route['distanceMeters'], # in meters
@@ -70,7 +71,7 @@ class GoogleDistanceService < BaseService
     }.to_json
 
     REDIS_STORE.set(cache_key, cache_json, expires_in: 5.minutes)
-    @route.update(last_updated_at: Time.current)
+    @route.update(last_updated_at: cache_time)
   end
 
   def determine_traffic_state(route)
